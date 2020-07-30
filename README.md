@@ -1,5 +1,5 @@
 ## Fork From https://github.com/zml400/skywalking-java-plugin-extensions.git
-#### optimize oracle-10.x-plugin  code
+#### optimize oracle-10.x-plugin  code , see 232d37f62fbd8223c40cbc68887379dc01943a13
 
 
 Java agent plugin extensions for Apache SkyWalking
