@@ -18,6 +18,8 @@
 
 package io.skywalking.apm.plugin.jdbc.oracle;
 
+import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
+
 /**
  * Constants variables
  *
@@ -31,4 +33,6 @@ public final class Constants {
     public static final String PREPARED_STATEMENT_INTERCEPT_CLASS = "io.skywalking.apm.plugin.jdbc.oracle.PreparedStatementExecuteMethodsInterceptor";
 
     public static final String PREPARED_STATEMENT_SET_PARAMS_INTERCEPT_CLASS = "io.skywalking.apm.plugin.jdbc.oracle.PreparedStatementSetParamsMethodsInterceptor";
+
+    public static final StringTag SQL_PARAMETERS = new StringTag("db.sql.parameters");
 }

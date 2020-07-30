@@ -20,7 +20,6 @@ package io.skywalking.apm.plugin.jdbc.oracle;
 
 import java.lang.reflect.Method;
 
-import io.skywalking.apm.plugin.jdbc.oracle.utils.SqlUtil;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -30,6 +29,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
+
+import static io.skywalking.apm.plugin.jdbc.oracle.Constants.SQL_PARAMETERS;
 
 /**
  * @author zhang xin
@@ -47,18 +48,16 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
             AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo.getDatabasePeer());
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
-            String sql = "";
-            if(!cacheObject.getSql().isEmpty()){
-                sql= SqlUtil.PrepareSqlTransfer(cacheObject.getSql(),cacheObject.getParameters());
-            }else {
-                if(allArguments.length>0){
-                    sql=(String)allArguments[0];
-                }else{
-                    sql="sql not found!";
-                }
-            }
-            Tags.DB_STATEMENT.set(span, sql);
+
+            Tags.DB_STATEMENT.set(span, cacheObject.getSql());
             span.setComponent(connectInfo.getComponent());
+
+            final Object[] parameters = cacheObject.getParameters();
+            if (parameters != null && parameters.length > 0) {
+                int maxIndex = cacheObject.getMaxIndex();
+                String parameterString = buildParameterString(parameters, maxIndex);
+                SQL_PARAMETERS.set(span, parameterString);
+            }
             SpanLayer.asDB(span);
         }
     }
@@ -86,5 +85,20 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
 
     private String buildOperationName(ConnectionInfo connectionInfo, String methodName, String statementName) {
         return connectionInfo.getDBType() + "/JDBI/" + statementName + "/" + methodName;
+    }
+
+    private String buildParameterString(Object[] parameters, int maxIndex) {
+        String parameterString = "[";
+        boolean first = true;
+        for (int i = 0; i < maxIndex; i++) {
+            Object parameter = parameters[i];
+            if (!first) {
+                parameterString += ",";
+            }
+            parameterString += parameter;
+            first = false;
+        }
+        parameterString += "]";
+        return parameterString;
     }
 }
