@@ -1,5 +1,6 @@
 
-### optimize oracle-10.x-plugin  code , see 232d37f62fbd8223c40cbc68887379dc01943a13
+### optimize oracle-10.x-plugin  code 
+see https://github.com/Z8gO/skywalking-java-plugin-extensions/commit/232d37f62fbd8223c40cbc68887379dc01943a13
 
 
 Java agent plugin extensions for Apache SkyWalking
